@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: Motorway Takehome Backend
+  version: 0.0.1
+paths:
+  /vehicles/{vehicleId}/state:
+    get:
+      tags:
+        - Vehicles
+        - Vehicles State
+      parameters:
+        - name: vehicleId
+          in: path
+          description: Vehicle Id
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          description: state at timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+      summary: Get Vehicle
+      responses:
+        '200':
+          description: Company
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    vehicle:
+      type: object
+      properties:
+        id:
+          type: number
+        make:
+          type: string
+        model:
+          type: string
+        state:
+          $ref: '#/components/schemas/state'
+        stateAtRequestedTime:
+          type: object
+          properties:
+            state:
+              $ref: '#/components/schemas/state'
+            timestamp:
+              type: string
+              format: date-time
+          required:
+            - state
+            - timestamp
+      required:
+        - id
+        - make
+        - model
+        - state
+    state:
+      type: string
+      enum:
+        - quoted
+        - selling
+        - sold
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - message
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              message:
+                type: string
+              details:
+                type: string
+              errors:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - path
+                    - errorCode
+                    - message
+                  properties:
+                    path:
+                      type: string
+                    errorCode:
+                      type: string
+                    message:
+                      type: string
+                    params:
+                      type: object

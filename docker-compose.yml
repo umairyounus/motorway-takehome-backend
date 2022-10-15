@@ -1,0 +1,26 @@
+services:
+  db:
+    image: motorway-test-backend
+    container_name: motorway-test-backend
+    build:
+      context: .
+      target: motorway-test-backend
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=motorway
+    ports:
+      - 5432:5432
+
+  app:
+    image: motorway-test-app
+    container_name: motorway-test-app
+    build:
+      dockerfile: 'Dockerfile.node'
+      context: .
+      target: production
+    environment:
+      - NODE_PORT=3000
+      - PG_CONNECTION=postgresql://user:password@db/motorway
+    ports:
+      - 3000:3000

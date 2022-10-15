@@ -1,0 +1,22 @@
+FROM node:16 AS builder
+WORKDIR /usr/app
+COPY package*.json ./
+RUN npm install
+COPY src ./src
+COPY tsconfig.json ./
+RUN npm run build
+
+
+FROM node:16 AS production-prepare
+WORKDIR /usr/app
+COPY --from=builder /usr/app/package*.json ./
+COPY --from=builder /usr/app/dist/src ./
+COPY --from=builder /usr/app/src/openapi.yml ./
+RUN npm install --production
+
+
+FROM gcr.io/distroless/nodejs:16 AS production
+WORKDIR /usr/app
+COPY --from=production-prepare /usr/app ./
+
+CMD ["index.js"]
